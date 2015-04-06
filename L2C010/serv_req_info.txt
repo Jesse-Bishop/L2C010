@@ -1,0 +1,59 @@
+<internal_error>
+	<executable>quartus.exe</executable>
+	<sub_system>unknown</sub_system>
+	<file>unknown</file>
+	<line>0</line>
+	<callstack>
+	0x454a286e:
+	0x1003909b: GCL_AFC + 0x3909b (?OnClose@AFC_CHILD_FRAME@@QAEXXZ + 0x13b)
+	0x5fd6be7f: mfc90 + 0x5be7f
+	0x5fd69165: mfc90 + 0x59165
+	0x5fd68699: mfc90 + 0x58699
+	0x5fd95974: mfc90 + 0x85974
+	0x755d577a: GDI32 + 0x1577a (DeleteObject + 0xf1)
+	0x5fd95a0e: mfc90 + 0x85a0e
+	0x100091a5: GCL_AFC + 0x91a5 (?OnWndMsg@AFC_CHILD_FRAME@@UAEHIIJPAJ@Z + 0x75)
+	0x5fd6ba48: mfc90 + 0x5ba48
+	0x5fd6a63c: mfc90 + 0x5a63c
+	0x5fd6a8c8: mfc90 + 0x5a8c8
+	0x5fd685b2: mfc90 + 0x585b2
+	0x76ed62f9: USER32 + 0x162f9 (gapfnScSendMessage + 0x331)
+	0x76ed6d39: USER32 + 0x16d39 (GetThreadDesktop + 0xd6)
+	0x76ed6de7: USER32 + 0x16de7 (GetThreadDesktop + 0x184)
+	0x76ed6e43: USER32 + 0x16e43 (GetThreadDesktop + 0x1e0)
+	0x77430109: ntdll + 0x10109 (KiUserCallbackDispatcher + 0x2d)
+	0x76ee6179: USER32 + 0x26179 (SendMessageA + 0x4b)
+	0x10011207: GCL_AFC + 0x11207 (?OnNcActivate@AFC_MDI_FRAME@@QAEHH@Z + 0x77)
+	0x5fd99874: mfc90 + 0x89874
+	0x5fd71693: mfc90 + 0x61693
+	0x4c0d19a6: AOT803AS + 0xd19a6 (SECMDIFrameWnd::OnCmdMsg + 0xe6)
+	0x5fd6c2d2: mfc90 + 0x5c2d2
+	0x5fd70b7f: mfc90 + 0x60b7f
+	0x4c0d187c: AOT803AS + 0xd187c (SECMDIFrameWnd::OnCommand + 0x5c)
+	0x10047ef0: GCL_AFC + 0x47ef0 (?OnCommand@AFC_MDI_FRAME@@UAEHIJ@Z + 0x20)
+	0x5fd6ba48: mfc90 + 0x5ba48
+	0x4c0d1c3a: AOT803AS + 0xd1c3a (SECMDIFrameWnd::WindowProc + 0x8a)
+	0x5fd6a63c: mfc90 + 0x5a63c
+	0x5fd6a8c8: mfc90 + 0x5a8c8
+	0x5fd685b2: mfc90 + 0x585b2
+	0x76ed62f9: USER32 + 0x162f9 (gapfnScSendMessage + 0x331)
+	0x76ed6d39: USER32 + 0x16d39 (GetThreadDesktop + 0xd6)
+	0x76ed77c3: USER32 + 0x177c3 (CharPrevW + 0x137)
+	0x76ed7bc9: USER32 + 0x17bc9 (DispatchMessageA + 0xe)
+	0x5fdaa866: mfc90 + 0x9a866
+	0x002d1968: ccl_thr + 0x1968 (thr_thread_var_destroy + 0x28)
+	0x5fd771e7: mfc90 + 0x671e7
+	0x0044f42e: quartus + 0x4f42e (Pjm_Uninit + 0x401ee)
+	0x75823369: KERNEL32 + 0x13369 (BaseThreadInitThunk + 0x11)
+	0x77459f71: ntdll + 0x39f71 (RtlInitializeExceptionChain + 0x62)
+	0x77459f44: ntdll + 0x39f44 (RtlInitializeExceptionChain + 0x35)
+	0xffffffffffffffff:
+	</callstack>
+	<error>Current editor: STED, RPW</error>
+	<date>Thu Oct 31 20:30:39 2013</date>
+	<version>Quartus II Version 9.0 Build 235 06/17/2009 Service Pack 2 SJ Web Edition</version>
+	<full_error>Access Violation at 0X454A286E
+Current editor: STED, RPW
+Quartus II Version 9.0 Build 235 06/17/2009 Service Pack 2 SJ Web Edition </full_error>
+</internal_error>
+

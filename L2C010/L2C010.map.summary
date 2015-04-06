@@ -1,0 +1,14 @@
+Analysis & Synthesis Status : Successful - Sun Apr 05 14:14:31 2015
+Quartus II Version : 9.0 Build 235 06/17/2009 SP 2 SJ Web Edition
+Revision Name : L2C010
+Top-level Entity Name : L2C010
+Family : Cyclone II
+Total logic elements : 642
+    Total combinational functions : 642
+    Dedicated logic registers : 220
+Total registers : 220
+Total pins : 61
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0

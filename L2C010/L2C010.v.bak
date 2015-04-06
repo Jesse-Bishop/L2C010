@@ -1,0 +1,408 @@
+module L2C010(
+	input [9:0]sw,
+	input [3:0]key,
+	input clock,
+	output [9:0]ledr,
+	output [7:0]ledg,
+	output reg[6:0]hex3, hex2, hex1, hex0);
+	
+	reg[24:0] delay;
+	reg[24:0] delay2;
+	reg[24:0] delay3;
+	reg[24:0] delay4;
+
+	reg signed [5:0]keyCount;
+	reg tact = 1'b0;
+	reg toggle = 1'b0;
+	reg start = 1'b1;
+	reg [3:0]last;
+	reg first = 1'b0;
+	reg fistScroll = 1'b1;
+	reg increment = 4'b0001;
+
+	reg[1:0] count;
+	reg[1:0] count2;
+	reg[1:0] count3;
+	reg[1:0] count4;			
+	reg[24:0] counter_24M;
+	reg clk_1Hz = 1'b0;	
+	
+	reg initialStart = 1'b0;
+	parameter COUNT_24M = 12000000;
+	
+	//assign ledg
+	assign ledg[0] = tact;
+	
+	//selector for hello and red led
+	integer numSel;
+	integer LED_Select;
+	
+	reg firstTime = 1'b1;
+	reg mylatch = 1'b0;
+	
+	reg [9:0]LED_reg;
+	assign ledr[0] = LED_reg[0];
+	assign ledr[1] = LED_reg[1];
+	assign ledr[2] = LED_reg[2];
+	assign ledr[3] = LED_reg[3];
+	assign ledr[4] = LED_reg[4];
+	assign ledr[5] = LED_reg[5];
+	assign ledr[6] = LED_reg[6];
+	assign ledr[7] = LED_reg[7];
+	assign ledr[8] = LED_reg[8];
+	assign ledr[9] = LED_reg[9];
+	parameter COUNT_LEDBLIP = 1335000;
+	reg[24:0] counter_LEDBLIP;
+	
+//Create a 1Hz clock using the 24MHz clock.
+always @(posedge clock) begin
+		
+		if(sw[9:5] == 5'b10000 && start == 1'b1)begin
+			if(counter_LEDBLIP == COUNT_LEDBLIP)begin
+				counter_LEDBLIP <= 0;
+				LED_Select <= LED_Select + 1;
+			end
+			else begin 
+				counter_LEDBLIP <= counter_LEDBLIP + 1;
+			end
+			if(LED_Select == 18) begin
+				LED_Select <= 0;
+			end
+		end
+		else begin
+			LED_Select <= 0;
+		end 
+	
+		if(counter_24M == COUNT_24M) begin
+			counter_24M <= 0;
+			clk_1Hz <= !clk_1Hz;
+		end
+		else begin
+			counter_24M <= counter_24M + 1;	
+		end
+		if(sw[8] && !sw[0])begin		
+			tact <= !clk_1Hz;
+		end 
+		else begin
+			tact <= 1'b0;
+		end
+end
+		
+
+
+//Use the 1Hz clock
+always @(posedge clk_1Hz)begin
+
+	if(sw[9:5] == 5'b10000) begin
+		start = 1'b1;
+		if(numSel < 19 && !sw[0]) begin
+			numSel <= numSel + 1;
+		end
+		else if(numSel == 19) begin
+			numSel <= 0;
+		end
+	end
+	else begin
+		start = 1'b0;
+		numSel <= 0;
+	end
+	
+	if(initialStart != 1'b1 || sw[0])begin
+		count <= 2'b00;
+		count2 <= 2'b00;
+		count3 <= 2'b00;
+		count4 <= 2'b00; 
+	end
+		else if(count == 2'b10)begin
+			count <= 2'b00;
+			if(count2 == 2'b10)begin
+				count2 <= 2'b00;
+					if(count3 == 2'b10) begin
+						count3 <= 2'b00;
+							if(count4 == 2'b10)begin
+								count4 <= 2'b00;
+							end
+							else begin
+								count4 <= count4 + 1;
+							end
+					end
+					else begin
+						count3 <= count3 + 1;
+					end
+			end
+			else begin
+				count2 <= count2 + 1;			
+			end
+		end
+		else
+			count <= count + 1;
+end
+
+always @ (posedge clock) begin
+
+	//initial condition
+	if (sw[9:5] == 5'b00000)begin
+		keyCount = 4'b0000;
+		firstTime = 1'b1;
+		fistScroll = 1'b1;
+		LED_reg[9:0] <= 0;
+		display(16, hex3[6:0]); display(0, hex2[6:0]); 
+		display(1, hex1[6:0]);  display(0, hex0[6:0]); 				
+	end
+	
+	//Part 1: 
+	else if(sw[9:5] == 5'b00001)begin
+		keyCount = 4'b0000;
+		firstTime = 1'b1;
+		LED_reg[9:0] <= 0;
+		case (sw[3:0])
+			4'b0000: begin display(0, hex3[6:0]);display(0, hex2[6:0]);
+						display(16, hex1[6:0]);display(0, hex0[6:0]);end
+			4'b0001: begin display(0, hex3[6:0]);display(1, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(1, hex0[6:0]);end
+			4'b0010: begin display(0, hex3[6:0]);display(2, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(2, hex0[6:0]);end
+		  4'b0011: begin display(0, hex3[6:0]);display(3, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(3, hex0[6:0]);end
+		  4'b0100: begin display(0, hex3[6:0]);display(4, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(4, hex0[6:0]);end
+		  4'b0101: begin display(0, hex3[6:0]);display(5, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(5, hex0[6:0]);end
+		  4'b0110: begin display(0, hex3[6:0]);display(6, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(6, hex0[6:0]);end
+		  4'b0111: begin display(0, hex3[6:0]);display(7, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(7, hex0[6:0]);end
+		  4'b1000: begin display(0, hex3[6:0]);display(8, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(8, hex0[6:0]);end
+		  4'b1001: begin display(0, hex3[6:0]);display(9, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(9, hex0[6:0]);end
+		  4'b1010: begin display(1, hex3[6:0]);display(0, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(10, hex0[6:0]);end
+		  4'b1011: begin display(1, hex3[6:0]);display(1, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(11, hex0[6:0]);end
+		  4'b1100: begin display(1, hex3[6:0]);display(2, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(12, hex0[6:0]);end
+		  4'b1101: begin display(1, hex3[6:0]);display(3, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(13, hex0[6:0]);end
+		  4'b1110: begin display(1, hex3[6:0]);display(4, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(14, hex0[6:0]);end
+		  4'b1111: begin display(1, hex3[6:0]);display(5, hex2[6:0]); 
+		 				display(16, hex1[6:0]);display(15, hex0[6:0]);end
+			default:; //all possible states covered, so not needed...
+		endcase
+	end
+	
+
+	
+	//Part 2: 
+	else if(sw[9:5] == 5'b00010)begin
+     keyCount = 4'b0000;
+     firstTime = 1'b1;
+     fistScroll = 1'b1;
+     LED_reg[9:0] <= 0;
+     
+     //Do the addition of the two digits
+     if(sw[0] == 1'b0)begin
+				display(sw[4:3], hex3[6:0]);
+				display(sw[2:1], hex2[6:0]);
+				display(16, hex1[6:0]);
+				display(sw[4:3] + sw[2:1], hex0[6:0]);
+     end
+      
+     //Do the multiplication of the two digits
+     else if(sw[0] == 1'b1)begin
+				display(sw[4:3], hex3[6:0]);
+				display(sw[2:1], hex2[6:0]);
+				display(16, hex1[6:0]);
+				display(sw[4:3] * sw[2:1], hex0[6:0]);
+     end    
+	end
+
+	//Part 3: 
+	if(sw[9:5] == 5'b00100) begin
+		fistScroll = 1'b1;
+		LED_reg[9:0] <= 0;
+		
+		display(16, hex0[6:0]);
+		display(16, hex1[6:0]);
+		display(16, hex3[6:0]);
+
+	
+	//Set equal to zero for the first time
+	if(firstTime == 1'b1 || sw[0]) begin
+		keyCount = 4'b0000;
+		firstTime = 1'b0;
+		display(keyCount, hex2[6:0]);	
+	end
+	
+	//The counting process
+	if(!key[2] && (mylatch == 1'b0)) begin
+		if(delay2 >= 20) begin
+			mylatch <= 1'b1;
+			if(!sw[1]) begin
+				keyCount = keyCount + 1;
+			end
+			else  begin
+				keyCount = keyCount - 1;
+			end
+			display(keyCount, hex2[6:0]);
+			delay2 <= 0;
+		end
+		else begin
+			delay2 <= delay2 +1;
+		end
+	end
+	else if(key[2] && (mylatch == 1'b1)) begin
+		display(keyCount, hex2[6:0]);
+		if(delay >= 20)begin 
+			mylatch = 1'b0;
+			delay <= 0;
+		end
+		else begin
+			delay <= delay + 1;
+		end
+	end
+
+	if(keyCount > 15)begin
+		keyCount = 0;
+		display(keyCount, hex2[6:0]);
+	end
+	if(keyCount < 0)begin
+		keyCount = 15;
+		display(keyCount, hex2[6:0]);
+	end
+end
+
+
+	//Part 4: 
+	if(sw[9:5] == 5'b01000)begin
+		
+		keyCount = 4'b0000;
+		firstTime = 1'b1;
+		fistScroll = 1'b1;
+		LED_reg[9:0] <= 0;
+		
+			if(initialStart != 1'b1)begin
+				initialStart <= 1'b1;
+			end
+		display(count4, hex3[6:0]);
+		display(count3, hex2[6:0]);
+		display(count2, hex1[6:0]);
+		display(count, hex0[6:0]);
+	end
+		else if(!sw[8] || sw[0])begin
+			initialStart <= 1'b0;
+		end
+
+	//Part 5
+	if(sw[9:5] == 5'b10000)begin
+		if(!sw[0]) begin
+			case (numSel)					
+			0:  begin display(16, hex3[6:0]);display(16, hex2[6:0]);
+								display(16, hex1[6:0]);display(16, hex0[6:0]);end
+			1:  begin display(16, hex3[6:0]);display(16, hex2[6:0]);
+								display(16, hex1[6:0]);display(17, hex0[6:0]);end
+			2:  begin display(16, hex3[6:0]);display(16, hex2[6:0]); 
+								display(17, hex1[6:0]);display(18, hex0[6:0]);end
+			3:  begin display(16, hex3[6:0]);display(17, hex2[6:0]); 
+								display(18, hex1[6:0]);display(19, hex0[6:0]);end
+			4:  begin display(17, hex3[6:0]);display(18, hex2[6:0]); 
+								display(19, hex1[6:0]);display(19, hex0[6:0]);end
+			5:  begin display(18, hex3[6:0]);display(19, hex2[6:0]); 
+								display(19, hex1[6:0]);display(20, hex0[6:0]);end
+			6:  begin display(19, hex3[6:0]);display(19, hex2[6:0]); 
+								display(20, hex1[6:0]);display(16, hex0[6:0]);end
+			7:  begin display(19, hex3[6:0]);display(20, hex2[6:0]); 
+								display(16, hex1[6:0]);display(16, hex0[6:0]);end
+			8:  begin display(20, hex3[6:0]);display(16, hex2[6:0]);
+								display(16, hex1[6:0]);display(21, hex0[6:0]);end
+			9:  begin display(16, hex3[6:0]);display(16, hex2[6:0]);
+								display(21, hex1[6:0]);display(1, hex0[6:0]);	end
+			10:  begin display(16, hex3[6:0]);display(21, hex2[6:0]); 
+								display(1, hex1[6:0]);display(13, hex0[6:0]);	end
+			11:  begin display(21, hex3[6:0]);display(1, hex2[6:0]);
+								display(13, hex1[6:0]);display(16, hex0[6:0]);end	
+			12:  begin display(1, hex3[6:0]);display(13, hex2[6:0]); 
+								display(16, hex1[6:0]);display(0, hex0[6:0]);end
+			13:  begin display(13, hex3[6:0]);display(16, hex2[6:0]); 
+								display(0, hex1[6:0]);display(1, hex0[6:0]);end	
+			14:  begin display(16, hex3[6:0]);display(0, hex2[6:0]); 
+								display(1, hex1[6:0]);display(0, hex0[6:0]);end
+			15:  begin display(0, hex3[6:0]);display(1, hex2[6:0]);
+								display(0, hex1[6:0]);display(16, hex0[6:0]);end
+			16:  begin display(1, hex3[6:0]);display(0, hex2[6:0]); 
+								display(16, hex1[6:0]);display(16, hex0[6:0]);end
+			17:  begin display(0, hex3[6:0]);display(16, hex2[6:0]); 
+								display(16, hex1[6:0]);display(16, hex0[6:0]);end
+			18:  begin display(16, hex3[6:0]);display(16, hex2[6:0]); 
+								display(16, hex1[6:0]);display(16, hex0[6:0]);end
+					 default: 			                               ; 
+		endcase
+		
+		case (LED_Select)					
+			0:  begin LED_reg[0] <= 1'b1; LED_reg[9:1] <= 1'b0;end
+			1:  begin LED_reg[1] <= 1'b1;	LED_reg[9:2] <= 1'b0; LED_reg[0] <= 1'b0;end
+			2:  begin LED_reg[2] <= 1'b1;	LED_reg[9:3] <= 1'b0; LED_reg[1:0] <= 1'b0;end
+			3:  begin LED_reg[3] <= 1'b1;	LED_reg[9:4] <= 1'b0; LED_reg[2:0] <= 1'b0;end
+			4:  begin LED_reg[4] <= 1'b1;	LED_reg[9:5] <= 1'b0; LED_reg[3:0] <= 1'b0;end
+			5:  begin LED_reg[5] <= 1'b1;	LED_reg[9:6] <= 1'b0; LED_reg[4:0] <= 1'b0;end
+			6:  begin LED_reg[6] <= 1'b1;	LED_reg[9:7] <= 1'b0; LED_reg[5:0] <= 1'b0;end
+			7:  begin LED_reg[7] <= 1'b1;	LED_reg[9:8] <= 1'b0; LED_reg[6:0] <= 1'b0;end
+			8:  begin LED_reg[8] <= 1'b1;	LED_reg[9:9] <= 1'b0; LED_reg[7:0] <= 1'b0;end
+			9:  begin LED_reg[9] <= 1'b1;	LED_reg[8:0] <= 1'b0;end
+			10: begin LED_reg[8] <= 1'b1;	LED_reg[9:9] <= 1'b0; LED_reg[7:0] <= 1'b0;end
+			11: begin LED_reg[7] <= 1'b1;	LED_reg[9:8] <= 1'b0; LED_reg[6:0] <= 1'b0;end
+			12: begin LED_reg[6] <= 1'b1;	LED_reg[9:7] <= 1'b0; LED_reg[5:0] <= 1'b0;end
+			13: begin LED_reg[5] <= 1'b1;	LED_reg[9:6] <= 1'b0; LED_reg[4:0] <= 1'b0;end	
+			14: begin LED_reg[4] <= 1'b1;	LED_reg[9:5] <= 1'b0; LED_reg[3:0] <= 1'b0;end
+			15: begin LED_reg[3] <= 1'b1;	LED_reg[9:4] <= 1'b0; LED_reg[2:0] <= 1'b0;end
+			16: begin LED_reg[2] <= 1'b1;	LED_reg[9:3] <= 1'b0; LED_reg[1:0] <= 1'b0;end
+			17: begin LED_reg[1] <= 1'b1;	LED_reg[9:2] <= 1'b0; LED_reg[0] <= 1'b0;end
+					default:  ;	
+		endcase
+		end
+		
+		//pause
+		else if(sw[0]) begin
+		end
+		else if (sw[9:5] != 5'b10000) begin 
+			LED_reg[9:0] <= 0;
+		end
+	
+	end
+//end always
+end
+
+	task display;
+		input integer num;
+		output reg[6:0]HEX;
+		
+		case (num)
+			0:  begin HEX[6:0] = 7'b1000000; end
+			1:  begin HEX[6:0] = 7'b1111001; end
+			2:  begin HEX[6:0] = 7'b0100100; end
+			3:  begin HEX[6:0] = 7'b0110000; end
+			4:  begin HEX[6:0] = 7'b0011001; end
+			5:  begin HEX[6:0] = 7'b0010010; end
+			6:  begin HEX[6:0] = 7'b0000010; end
+			7:  begin HEX[6:0] = 7'b1111000; end
+			8:  begin HEX[6:0] = 7'b0000000; end
+			9:  begin HEX[6:0] = 7'b0010000; end
+			10: begin HEX[6:0] = 7'b0001000; end
+			11: begin HEX[6:0] = 7'b0000011; end
+			12: begin HEX[6:0] = 7'b1000110; end
+			13: begin HEX[6:0] = 7'b0100001; end
+			14: begin HEX[6:0] = 7'b0000110; end
+			15: begin HEX[6:0] = 7'b0001110; end
+			16: begin HEX[6:0] = 7'b1111111; end
+			17: begin HEX[6:0] = 7'b0001001; end//H
+			18: begin HEX[6:0] = 7'b0000110; end//E
+			19: begin HEX[6:0] = 7'b1000111; end//L
+			20: begin HEX[6:0] = 7'b1000000; end//O
+			21: begin HEX[6:0] = 7'b1000110; end//C
+			default: 			                 ; 
+		endcase
+	endtask 
+endmodule 
+
+
